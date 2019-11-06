@@ -42,11 +42,14 @@ ATTR_BATTERY_ICON = "battery_icon"
 ATTR_CLEANED_AREA = "cleaned_area"
 ATTR_FAN_SPEED = "fan_speed"
 ATTR_FAN_SPEED_LIST = "fan_speed_list"
+ATTR_AREAS_LIST = "areas_list"
+ATTR_AREAS = "areas"
 ATTR_PARAMS = "params"
 ATTR_STATUS = "status"
 
 SERVICE_CLEAN_SPOT = "clean_spot"
 SERVICE_LOCATE = "locate"
+
 SERVICE_RETURN_TO_BASE = "return_to_base"
 SERVICE_SEND_COMMAND = "send_command"
 SERVICE_SET_FAN_SPEED = "set_fan_speed"
@@ -54,6 +57,7 @@ SERVICE_START_PAUSE = "start_pause"
 SERVICE_START = "start"
 SERVICE_PAUSE = "pause"
 SERVICE_STOP = "stop"
+
 
 VACUUM_SET_FAN_SPEED_SERVICE_SCHEMA = ENTITY_SERVICE_SCHEMA.extend(
     {vol.Required(ATTR_FAN_SPEED): cv.string}
@@ -180,6 +184,16 @@ class _BaseVacuum(Entity):
         return None
 
     @property
+    def areas(self):
+        """Get the list of available fan speed steps of the vacuum cleaner."""
+        raise NotImplementedError()
+
+    @property
+    def areas_list(self):
+        """Get the list of available fan speed steps of the vacuum cleaner."""
+        raise NotImplementedError()
+
+    @property
     def fan_speed_list(self):
         """Get the list of available fan speed steps of the vacuum cleaner."""
         raise NotImplementedError()
@@ -227,6 +241,17 @@ class _BaseVacuum(Entity):
         This method must be run in the event loop.
         """
         await self.hass.async_add_executor_job(partial(self.locate, **kwargs))
+
+    def set_areas(self, areas, **kwargs):
+        """Locate the vacuum cleaner."""
+        raise NotImplementedError()
+
+    async def async_set_areas(self, areas, **kwargs):
+        """Locate the vacuum cleaner.
+
+        This method must be run in the event loop.
+        """
+        await self.hass.async_add_executor_job(partial(self.set_areas, areas, **kwargs))
 
     def set_fan_speed(self, fan_speed, **kwargs):
         """Set fan speed."""
@@ -288,6 +313,10 @@ class VacuumDevice(_BaseVacuum, ToggleEntity):
         if self.fan_speed is not None:
             data[ATTR_FAN_SPEED] = self.fan_speed
             data[ATTR_FAN_SPEED_LIST] = self.fan_speed_list
+
+        if self.areas_list is not None:
+            data[ATTR_AREAS_LIST] = self.areas_list
+            data[ATTR_AREAS] = self.areas
 
         return data
 
@@ -362,6 +391,10 @@ class StateVacuumDevice(_BaseVacuum):
         if self.fan_speed is not None:
             data[ATTR_FAN_SPEED] = self.fan_speed
             data[ATTR_FAN_SPEED_LIST] = self.fan_speed_list
+
+        if self.areas is not None:
+            data[ATTR_AREAS] = self.areas
+            data[ATTR_AREAS_LIST] = self.areas_list
 
         return data
 

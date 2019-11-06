@@ -145,6 +145,16 @@ xiaomi_clean_zone:
       description: Number of cleaning repeats for each zone between 1 and 3.
       example: '1'
 
+roomba_set_areas:
+  description: Set the areas to be cleaned next start
+  fields:
+    entity_id:
+      description: Name of the vacuum entity.
+      example: 'vacuum.rommba_vacuum_cleaner'
+    areas:
+      description: Array of room ids 
+      example: '[[2, 4, 5, 10]]'
+
 neato_custom_cleaning:
   description: Zone Cleaning service call specific to Neato Botvacs.
   fields:
